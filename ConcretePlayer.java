@@ -18,4 +18,8 @@ public class ConcretePlayer implements Player {
         return this.wins;
     }
 
+    public void win(){
+        wins++;
+    }
+
 }

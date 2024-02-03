@@ -2,7 +2,7 @@ public class GameLogic implements PlayableLogic {
     static final int VIKINGS_CHESS_BOARD_SIZE = 11;
     static final boolean FIRST = false;
     static final boolean SECOND = true;
-
+    private boolean winner;
     private int moves;
     private ConcretePlayer first, second;
     private Board board;
@@ -184,10 +184,16 @@ public class GameLogic implements PlayableLogic {
                 if (board.getPieceAtPosition(current_pos) != null) {
                     ConcretePiece current_piece = (ConcretePiece) getPieceAtPosition(current_pos);
                     if (current_piece.getType().equals("♔")) {
+                        boolean finish1 =false,finish2 =false;
                         if (isSecondPlayerTurn())
-                            return kingIsTrapped(current_pos);
+                            finish1= kingIsTrapped(current_pos);
                         else
-                            return current_pos.isACorner(VIKINGS_CHESS_BOARD_SIZE, VIKINGS_CHESS_BOARD_SIZE);
+                            finish2= current_pos.isACorner(VIKINGS_CHESS_BOARD_SIZE, VIKINGS_CHESS_BOARD_SIZE);
+                        if(finish1)
+                            first.win();
+                        if(finish2)
+                            second.win();
+                        return (finish1||finish2);
                     }
                 }
             }
@@ -222,8 +228,8 @@ public class GameLogic implements PlayableLogic {
 
     @Override
     public void reset() {
-        first = new ConcretePlayer(FIRST);
-        second = new ConcretePlayer(SECOND);
+//        first = new ConcretePlayer(FIRST);
+//        second = new ConcretePlayer(SECOND);
         board = new Board(VIKINGS_CHESS_BOARD_SIZE, VIKINGS_CHESS_BOARD_SIZE);
         setUpVikingsChessBoard();
         moves = 0;
