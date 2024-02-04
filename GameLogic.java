@@ -1,8 +1,16 @@
+import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class GameLogic implements PlayableLogic {
     static final int VIKINGS_CHESS_BOARD_SIZE = 11;
     static final boolean FIRST = false;
     static final boolean SECOND = true;
     private boolean winner;
+    private List<ConcretePiece> pieces = new ArrayList<>();
     private int moves;
     private ConcretePlayer first, second;
     private Board board;
@@ -33,6 +41,21 @@ public class GameLogic implements PlayableLogic {
         }
         // set king
         board.placePiece(new King(second), 5, 5);
+
+        int numA=1 , numD=1;
+        for(int i=0; i<VIKINGS_CHESS_BOARD_SIZE;i++){
+            for(int j=0; j<VIKINGS_CHESS_BOARD_SIZE;j++){
+                ConcretePiece temp = (ConcretePiece) board.getPieceAtPosition(board.getPosition(i,j));
+                if(temp!=null){
+                    if(temp.getOwner().equals(first))
+                        temp.setNumber(numA++);
+                    if(temp.getOwner().equals(second))
+                        temp.setNumber((numD++));
+                    temp.addHistory(board.getPosition(i,j));
+                    pieces.add(temp);
+                }
+            }
+        }
     }
 
     @Override
@@ -40,9 +63,9 @@ public class GameLogic implements PlayableLogic {
         ConcretePlayer hisTurn= (ConcretePlayer) getPieceAtPosition(a).getOwner();
         if((hisTurn.first && isSecondPlayerTurn())||(!hisTurn.first && !isSecondPlayerTurn())) {
             if (isLegalMove(a, b)) {
-                System.out.println(a.getRow() + ", " + a.getColumn());
                 ConcretePiece movedPiece = board.pickUpPiece(a);
                 Position new_pos = board.placePiece(movedPiece, b);
+                movedPiece.addHistory(new_pos);
                 if(!(movedPiece instanceof King)) {
                     if (isSecondPlayerTurn())
                         take(new_pos, second, first);
@@ -83,15 +106,16 @@ public class GameLogic implements PlayableLogic {
             down_down_piece = (ConcretePiece) getPieceAtPosition(down.getDown());
 
 
-
-
         // take right
             if (board.isInBoard(right) && right_piece != null && right_piece.getOwner().equals(to_be_taken)
                     && (right.getRight() == null) ||
                     (right_right_piece != null && right_right_piece.getOwner().equals(takes)) && right_piece != null) {
                 if (!(right.getRight() != null && right_piece.getOwner().equals(takes))) {
-                    if (right_piece instanceof Pawn && (right_right_piece instanceof Pawn || right_right_piece==null))
+                    if (right_piece instanceof Pawn && (right_right_piece instanceof Pawn || right_right_piece==null)){
                         right.setPiece(null);
+                        ((Pawn)board.getPieceAtPosition(p)).kill();
+                    }
+
                 }
             }
 
@@ -189,11 +213,17 @@ public class GameLogic implements PlayableLogic {
                             finish1= kingIsTrapped(current_pos);
                         else
                             finish2= current_pos.isACorner(VIKINGS_CHESS_BOARD_SIZE, VIKINGS_CHESS_BOARD_SIZE);
-                        if(finish1)
-                            first.win();
-                        if(finish2)
+                        if(finish1){
+                            winner=FIRST;
+                            first.win();}
+                        if(finish2){
+                            winner=SECOND;
                             second.win();
-                        return (finish1||finish2);
+                        }
+                        if(finish1||finish2){
+                            printStats();
+                            return  true;
+                        }
                     }
                 }
             }
@@ -221,6 +251,36 @@ public class GameLogic implements PlayableLogic {
         return right_blocks && left_blocks && down_blocks && up_blocks;
     }
 
+    private void printStats(){
+        //firs part
+        pieces.sort((piece1,piece2)->{
+            int deffendarOrAttack = Boolean.compare(piece1.getOwner().isPlayerOne(),(piece2.getOwner().isPlayerOne()));
+            if(deffendarOrAttack != 0){
+                if(winner)
+                    return -deffendarOrAttack;
+                else
+                    return deffendarOrAttack;
+            }
+            int dis= Integer.compare(piece1.getHistory().size(),piece2.getHistory().size());
+            if (dis!=0)
+                return dis;
+            return Integer.compare(piece1.number,piece2.number);
+        });
+        printStats(pieces, (o)->o.getHistory().size() > 1, ConcretePiece::getHistory);
+
+    }
+
+    private <T,R> void printStats(Collection<T> c, Function<T, Boolean> cond, Function<T, R> func) {
+        for (T piece: c) {
+            if (cond.apply(piece)) {
+                System.out.print(piece);
+                System.out.println(func.apply(piece).toString());
+            }
+        }
+        for (int i=0; i < 75; i++) {
+            System.out.print("*");}
+        System.out.println();
+    }
     @Override
     public boolean isSecondPlayerTurn() {
         return moves % 2 == 1;
@@ -243,6 +303,7 @@ public class GameLogic implements PlayableLogic {
     public int getBoardSize() {
         return VIKINGS_CHESS_BOARD_SIZE;
     }
+
 }
 
 

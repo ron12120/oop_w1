@@ -1,7 +1,8 @@
 public class ConcretePlayer implements Player {
 
-    int wins;
+    private  int wins;
     boolean first;
+
 
     public ConcretePlayer(boolean first) {
         this.first = first;

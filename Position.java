@@ -86,4 +86,9 @@ public class Position {
         }
         return is_corner;
     }
+
+    @Override
+    public String toString() {
+        return "["+row+","+col+"]";
+    }
 }
