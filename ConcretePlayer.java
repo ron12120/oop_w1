@@ -1,12 +1,16 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class ConcretePlayer implements Player {
 
-    private  int wins;
+    ArrayList<ConcretePiece> pieces;
+    int wins;
     boolean first;
-
 
     public ConcretePlayer(boolean first) {
         this.first = first;
         this.wins = 0;
+        pieces = new ArrayList<>();
     }
 
     @Override
@@ -22,5 +26,7 @@ public class ConcretePlayer implements Player {
     public void win(){
         wins++;
     }
+
+
 
 }

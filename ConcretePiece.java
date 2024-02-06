@@ -1,18 +1,20 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public abstract class ConcretePiece implements Piece {
 
+    ArrayList<Move> moves;
     private String type;
     private ConcretePlayer owner;
-    protected int number;
-    private List<Position> historyPiece = new ArrayList<>();
+    private int number;
+    int dist;
 
     public ConcretePiece(ConcretePlayer owner, String type) {
+        moves = new ArrayList<>();
         this.type = type;
         this.owner = owner;
+        dist=0;
     }
+
     public String getType() {
         return type;
     }
@@ -20,21 +22,19 @@ public abstract class ConcretePiece implements Piece {
     public Player getOwner() {
         return owner;
     }
+
     public void setNumber(int number){
-        this.number= number;
+        this.number=number;
     }
-    public void addHistory(Position p){
-        this.historyPiece.add(p);
-    }
-    public List<Position> getHistory(){
-        return historyPiece;
+    public int getNumber(){
+        return number;
     }
 
-    @Override
     public String toString() {
         if(owner.isPlayerOne())
             return "D"+number+":";
         else
             return "A"+number+":";
     }
+
 }

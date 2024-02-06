@@ -1,8 +1,10 @@
 public class Pawn extends ConcretePiece{
-    private int kills;
+    private int kils;
     public Pawn(ConcretePlayer owner) {
         super(owner, "♟");
     }
-    public void kill(){kills++;}
-
+    public void kill(){
+        kils++;
+    }
+    public int getKils(){return kils;}
 }
